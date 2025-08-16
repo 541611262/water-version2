@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>滤芯更换提醒系统</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- SheetJS库用于处理Excel文件 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>滤芯更换提醒系统</h1>
+        
+        <!-- Login Section -->
+        <div id="loginSection" class="auth-section">
+            <h2>用户登录</h2>
+            <div class="form-group">
+                <label for="loginUsername">用户名:</label>
+                <input type="text" id="loginUsername" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">密码:</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button id="loginBtn">登录</button>
+            <p class="auth-link">还没有账户？<a href="#" id="showRegisterLink">立即注册</a></p>
+            <p class="auth-link"><a href="#" id="showRecoveryLink">忘记密码？</a></p>
+            <div id="loginError" class="error-message"></div>
+        </div>
+        
+        <!-- Registration Section -->
+        <div id="registerSection" class="auth-section" style="display: none;">
+            <h2>用户注册</h2>
+            <div class="form-group">
+                <label for="registerUsername">用户名:</label>
+                <input type="text" id="registerUsername" required>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">密码:</label>
+                <input type="password" id="registerPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">确认密码:</label>
+                <input type="password" id="confirmPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="securityQuestion">安全问题:</label>
+                <input type="text" id="securityQuestion" placeholder="请输入一个安全问题，例如：你最喜欢的颜色是什么？" required>
+            </div>
+            <div class="form-group">
+                <label for="securityAnswer">安全问题答案:</label>
+                <input type="text" id="securityAnswer" placeholder="请输入安全问题的答案" required>
+            </div>
+            <button id="registerBtn">注册</button>
+            <p class="auth-link">已有账户？<a href="#" id="showLoginLink">立即登录</a></p>
+            <div id="registerError" class="error-message"></div>
+        </div>
+        
+        <!-- Password Recovery Section -->
+        <div id="recoverySection" class="auth-section" style="display: none;">
+            <h2>密码恢复</h2>
+            <div class="form-group">
+                <label for="recoveryUsername">用户名:</label>
+                <input type="text" id="recoveryUsername" required>
+            </div>
+            <div class="form-group">
+                <label for="recoverySecurityAnswer">安全问题答案:</label>
+                <input type="text" id="recoverySecurityAnswer" placeholder="请输入您设置的安全问题答案" required>
+            </div>
+            <div class="form-group">
+                <label for="newRecoveryPassword">新密码:</label>
+                <input type="password" id="newRecoveryPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmRecoveryPassword">确认新密码:</label>
+                <input type="password" id="confirmRecoveryPassword" required>
+            </div>
+            <button id="recoveryBtn">恢复密码</button>
+            <p class="auth-link"><a href="#" id="backToLoginLink">返回登录</a></p>
+            <div id="recoveryError" class="error-message"></div>
+        </div>
+        
+        <!-- Admin User Management Section -->
+        <div id="adminUserManagement" class="auth-section" style="display: none;">
+            <h2>用户管理</h2>
+            <div id="userList"></div>
+            <p class="auth-link"><a href="#" id="backToMainAppLink">返回主应用</a></p>
+        </div>
+        
+        <!-- Main App Section (hidden by default) -->
+        <div id="mainApp" class="main-app" style="display: none;">
+            <div class="user-info">
+                <span>欢迎, <span id="currentUsername"></span> (<span id="currentUserRole"></span>)</span>
+                <button id="changePasswordBtn">修改密码</button>
+                <button id="logoutBtn">退出登录</button>
+            </div>
+            
+            <!-- Change Password Modal -->
+            <div id="changePasswordModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>修改密码</h2>
+                    <div class="form-group">
+                        <label for="currentPassword">当前密码:</label>
+                        <input type="password" id="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">新密码:</label>
+                        <input type="password" id="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmNewPassword">确认新密码:</label>
+                        <input type="password" id="confirmNewPassword" required>
+                    </div>
+                    <button id="savePasswordBtn">保存</button>
+                    <div id="changePasswordError" class="error-message"></div>
+                </div>
+            </div>
+            <div class="input-section">
+                <h2>添加新客户</h2>
+                <div class="form-group">
+                    <label for="customerName">客户名称:</label>
+                    <input type="text" id="customerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactPerson">联系人:</label>
+                    <input type="text" id="contactPerson" required>
+                </div>
+                <div class="form-group">
+                    <label for="phoneNumber">联系电话:</label>
+                    <input type="tel" id="phoneNumber" required>
+                </div>
+                <div class="form-group">
+                    <label for="filterPurchaseDate">滤芯购买日期:</label>
+                    <input type="date" id="filterPurchaseDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="customInterval">自定义间隔(月):</label>
+                    <input type="number" id="customInterval" placeholder="默认为2-4个月">
+                </div>
+                <button id="addCustomer">添加客户</button>
+                
+                <div class="import-section">
+                    <h3>批量导入/导出客户数据</h3>
+                    <p>支持CSV和Excel格式，列名必须包含：客户名称,联系人,联系电话,滤芯购买日期</p>
+                    <p>可选列：自定义间隔(月)</p>
+                    <p>日期格式支持：YYYY-MM-DD, YYYY/MM/DD, MM/DD/YYYY</p>
+                    <p>示例文件：<a href="#" id="downloadSample">下载示例文件</a></p>
+                    <input type="file" id="csvFile" accept=".csv,.xlsx,.xls">
+                    <div>
+                        <button id="importBtn">导入数据</button>
+                        <button id="exportBtn">导出数据</button>
+                    </div>
+                    <div id="importStatus"></div>
+                </div>
+            </div>
+
+            <div class="reminder-section">
+                <h2>客户管理</h2>
+                <div class="search-controls">
+                    <div class="search-box">
+                        <label for="customerSearch">搜索客户:</label>
+                        <input type="text" id="customerSearch" placeholder="输入客户名称进行搜索...">
+                    </div>
+                    <div class="controls">
+                        <label>
+                            <input type="checkbox" id="showAll"> 显示所有客户
+                        </label>
+                    </div>
+                </div>
+                <div id="reminderList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
